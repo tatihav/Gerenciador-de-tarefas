@@ -1,0 +1,32 @@
+Funcionalidades Principais
+1. Adicionar Tarefa
+○ Entrada: Título, descrição e data de conclusão.
+○ Ação: Criar uma nova tarefa e adicioná-la à lista de tarefas.
+2. Listar Tarefas
+○ Exibir todas as tarefas, categorizando-as como pendentes ou concluídas.
+3. Marcar Tarefa como Concluída
+○ Entrada: ID da tarefa.
+○ Ação: Atualizar o status da tarefa para concluída.
+4. Remover Tarefa
+○ Entrada: ID da tarefa.
+○ Ação: Remover a tarefa da lista.
+5. Salvar e Carregar Tarefas
+○ Salvar: Escrever a lista de tarefas em um arquivo JSON.
+○ Carregar: Ler a lista de tarefas do arquivo JSON.
+6. Pesquisar Tarefas
+○ Entrada: Termo de pesquisa.
+○ Ação: Filtrar tarefas que contenham o termo no título ou descrição.
+7. Ordenar Tarefas por Data
+○ Ação: Ordenar a lista de tarefas com base na data de conclusão.
+
+Estrutura de Dados
+Utilizaremos uma lista para armazenar as tarefas, onde cada tarefa será um dicionário
+com as seguintes chaves:
+● 'id': Identificador único da tarefa.
+● 'titulo': Título da tarefa.
+● 'descricao': Descrição detalhada.
+● 'data': Data de conclusão.
+● 'concluida': Booleano indicando se a tarefa foi concluída.
+Arquivo de Dados
+As tarefas serão armazenadas em um arquivo JSON chamado tarefas.json, permitindo
+que elas persistam entre as execuções do programa.

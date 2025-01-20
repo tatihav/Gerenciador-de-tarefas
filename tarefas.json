@@ -3,24 +3,35 @@
         "id": 123,
         "titulo": "Titulo tarefa",
         "descricao": "Descricao tarefa",
-        "status": true
+        "data": "21/01/2025",
+        "concluida": true
     },
     {
         "id": 1,
         "titulo": "Limpar a casa",
         "descricao": "lavar banheiro",
-        "status": true
+        "data": "21/01/2025",
+        "concluida": true
     },
     {
         "id": 2,
         "titulo": "texte",
         "descricao": "od",
-        "status": true
+        "data": "21/01/2025",
+        "concluida": true
     },
     {
         "id": 3,
         "titulo": "lavar lou\u00e7a",
         "descricao": "lavar",
-        "status": false
+        "data": "21/01/2025",
+        "concluida": false
+    },
+    {
+        "id": 124,
+        "titulo": "fazer caf\u00e9",
+        "descricao": "com tapioca",
+        "data": "21/01/2025",
+        "concluida": true
     }
 ]
