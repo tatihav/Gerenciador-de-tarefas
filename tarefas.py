@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime
+import csv
 
 # Função para carregar tarefas
 def carregar_tarefas():
@@ -10,14 +11,17 @@ def carregar_tarefas():
     else:
         return []
 
-# Exibe todas as tarefas
+# Listar todas as tarefas
 def listar_tarefas(tarefas):
     print("\nTarefas pendentes:")
     tarefas_pendentes = [t for t in tarefas if not t['concluida']]
     tarefas_pendentes = sorted(tarefas_pendentes, key=lambda x: datetime.strptime(x['data'], '%d/%m/%Y'))
 
     for tarefa in tarefas_pendentes:
-        print(f"ID: {tarefa['id']}, Título: {tarefa['titulo']}, Data: {tarefa['data']}")
+        data_obj = datetime.strptime(tarefa['data'], '%d/%m/%Y')
+        status_atrasado = " [ATRASADA]" if data_obj.date() < datetime.now().date() else""
+        print(f"ID: {tarefa['id']}, Título: {tarefa['titulo']}, Data: {tarefa['data']}{status_atrasado}")
+
 
     print("\nTarefas concluídas:")
     tarefas_concluidas = [t for t in tarefas if t['concluida']]
@@ -116,6 +120,91 @@ def ordenar_tarefas(tarefas):
     salvar_tarefas(tarefas)
     print("Tarefas ordenadas por data de conclusão com sucesso!")
 
+#Editar tarefas
+def editar_tarefas(tarefas):
+    try:
+        id_tarefa = int(input("Digite o ID da tarefa a ser editada: "))
+        for tarefa in tarefas:
+            if tarefa['id'] == id_tarefa:
+                print(f"Editar Tarefa ID {id_tarefa}:")
+                novo_titulo = input(f"Novo Título (atual:{tarefa['titulo']}): ") or tarefa['titulo']
+                nova_descricao = input(f"Nova descrição (atual: {tarefa['descricao']}): ") or tarefa['descricao']
+                nova_data = input(f"Nova data de conclusão (atual: {tarefa['data']}, formato dd/mm/aaaa): ") or tarefa['data']
+                try:
+                    data_obj = datetime.strptime(nova_data, '%d/%m/%Y')
+                    if data_obj.date() < datetime.now().date():
+                        print("Data de conclusão não pode ser no passado.")
+                        return
+                    tarefa['data'] = data_obj.strftime('%d/%m/%Y')
+                except ValueError:
+                    print("Data em formato inválido.")
+                    return
+                tarefa['titulo'] = novo_titulo
+                tarefa['descricao'] = nova_descricao
+                salvar_tarefas(tarefas)
+                print("Tarefa editada com sucesso!")
+                return
+        print("Tarefa não encontrada!")
+    except ValueError:
+        print("ID inválido.")
+        
+
+# Exportar CSV
+def exportar_tarefas(tarefas):
+    try:
+        with open('tarefas_exportadas.csv', 'w', newline='', encoding='utf-8') as arquivo_csv:
+            campos = ['ID', 'Título', 'Descrição', 'Data de conclusão', 'Concluída']
+            escritor = csv.DictWriter(arquivo_csv, fieldnames=campos)
+            escritor.writeheader()
+            for tarefa in tarefas:
+                escritor.writerow({
+                    'ID': tarefa['id'],
+                    'Título': tarefa['titulo'],
+                    'Descrição': tarefa['descricao'],
+                    'Data de conclusão': tarefa['data'],
+                    'Concluída': 'Sim' if tarefa['concluida'] else 'Não'
+                })
+            print("Tarefas exportadas com sucesso para 'tarefas_exportadas.csv'.")
+    except Exception as e:
+        print(f"Ocorreu um erro ao exportar as tarefas: {e}")
+#Importar CSV
+def importar_tarefas(tarefas):
+    nome_arquivo = input("Digite o nome do arquivo CSV para importar: ")
+    try:
+        with open(nome_arquivo, 'r') as arquivo_csv:
+            leitor = csv.DictReader(arquivo_csv)
+            for linha in leitor:
+                try:
+                                  
+                    # Verifica se todas as colunas estão presentes
+                    if not all(campo in linha for campo in ['Título', 'Descrição', 'Data de Conclusão', 'Concluída']):
+                        print("Formato de arquivo inválido. Certifique-se de que o CSV contém as colunas corretas.")
+                        return
+                    # Valida os dados de cada tarefa
+                    tarefa = {
+                        'id': gerar_id(tarefas),
+                        'titulo': linha['Título'],
+                        'descricao': linha['Descrição'],
+                        'data': linha['Data de Conclusão'],
+                        'concluida': True if linha['Concluída'].strip().lower() == 'sim' else False
+                    }
+                    # Verifica se a data está no formato correto
+                    datetime.strptime(tarefa['data'], '%d/%m/%Y')  # Gera um erro se o formato estiver inválido
+                    tarefas.append(tarefa)
+                except ValueError as ve:
+                    print(f"Erro nos dados da tarefa: {ve}. Certifique-se de que as datas estão no formato dd/mm/aaaa.")
+                    return
+
+            salvar_tarefas(tarefas)
+            print(f"Tarefas importadas com sucesso do arquivo '{nome_arquivo}'.")
+    except FileNotFoundError:
+        print("Arquivo não encontrado.")
+    except Exception as e:
+        print(f" Ocorreu um erro ao importar as tarefas: {e}")
+
+
+                                    
+
 # Menu principal
 def menu():
     print("=== GERENCIADOR DE TAREFAS ===")
@@ -125,7 +214,10 @@ def menu():
     print("4. Remover Tarefa")
     print("5. Pesquisar Tarefas")
     print("6. Ordenar Tarefas por Data")
-    print("7. Sair")
+    print("7. Editar Tarefa")
+    print("8. Exportar para CSV")
+    print("9. Importar Tarefas de CSV")
+    print("10. Sair")
     opcao = input("Escolha uma opção: ")
     return opcao
 
@@ -147,7 +239,16 @@ def main():
             pesquisar_tarefas(tarefas)
         elif opcao == '6':
             ordenar_tarefas(tarefas)
+        
         elif opcao == '7':
+            editar_tarefas(tarefas)
+       
+        elif opcao == '8':
+            exportar_tarefas(tarefas)
+        elif opcao == '9':
+            importar_tarefas(tarefas)
+
+        elif opcao == '10':
             print("Encerrando programa...")
             break
         else:
